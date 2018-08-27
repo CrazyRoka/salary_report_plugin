@@ -1,11 +1,11 @@
 class SalaryReportsController < ApplicationController
 
   def index
+    @reports = SalaryReport.all.includes(:salary_report_entries).order(:payed_at)
   end
 
   def new
     @issues = Issue.includes(:project, :assigned_to, :time_entries, :salary_report_entries).order(:assigned_to_id, :project_id)
-    p @issues
   end
 
   def create
@@ -14,6 +14,7 @@ class SalaryReportsController < ApplicationController
     else
       flash[:error] = "Error creating report"
     end
+    @reports = SalaryReport.all.includes(:salary_report_entries).order(:payed_at)
     render 'index'
   end
 
@@ -28,6 +29,7 @@ class SalaryReportsController < ApplicationController
         total_salary += cur.time_amount * cur.coefficient
       end
       report.money_amount = total_salary
+      report.save!
     end
   end
 

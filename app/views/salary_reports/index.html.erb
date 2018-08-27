@@ -1,2 +1,44 @@
-<h2>SalaryReportController#index</h2>
-<%= link_to 'Create report', salary_reports_new_path %>
+<div class="report-container">
+  <% @reports.each do |report| %>
+    <div class="report <%= report.payed_at ? "payed" : "unpayed" %>">
+      <div class="salary">$<%= report.money_amount %></div>
+      <div class="payed-at"><%= report.payed_at || "unpayed" %></div>
+    </div>
+  <% end %>
+</div>
+<%= link_to 'Create report', salary_reports_new_path, class: "create-report" %>
+
+<style>
+  .report-container {
+    display: flex;
+    font-size: 2rem;
+    text-align: center;
+    flex-wrap: wrap;
+    background-color: gray;
+    padding: 1em 1.5em;
+  }
+
+  .report {
+    padding: 1.5em 2em;
+    background-color: darkgray;
+    border-radius: .5em;
+    margin-right: 1em;
+  }
+
+  .payed {
+    background-color: green;
+  }
+
+  .unpayed {
+    background-color: red;
+  }
+
+  .create-report {
+    float: right;
+    padding: 0.5em 1em;
+    background-color: #ccc;
+    border-radius: 0.5em;
+    margin-top: 0.5em;
+    font-size: 2em;
+  }
+</style>
