@@ -1,0 +1,51 @@
+<table>
+  <thead class="report-header">
+    <tr>
+      <td>Assigned to</td>
+      <td>Issue id</td>
+      <td>Project name</td>
+      <td>Time</td>
+      <td>Coefficient</td>
+    </tr>
+  </thead>
+  <tbody class="table-content">
+    <% @issues.each do |issue| %>
+    <tr>
+      <td><%= issue.assigned_to.name %></td>
+      <td><%= issue.id %></td>
+      <td><%= issue.project.name %></td>
+      <td><%= issue.time_entries.to_a.sum(&:hours) - issue.salary_report_entries.to_a.sum(&:time_amount) %></td>
+      <td><%= 1 %></td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<button type="submit" class="create-report">Create report</button>
+
+<script>
+  $( document ).ready(function() {
+    $('button.create-report').click(function () {
+      const tbody = document.getElementsByClassName("table-content")[0];
+      const issues = Array.prototype.slice.call( tbody.children );
+      console.log(issues);
+      const entries = issues.map(issue => {
+        return {
+          issue_id: issue.cells[1].textContent,
+          time_amount: issue.cells[3].textContent,
+          coefficient: issue.cells[4].textContent,
+        };
+      });
+      console.log(entries);
+      $.ajax({
+        type: "POST",
+        url: "<%= salary_reports_path %>",
+        data: JSON.stringify({ entries: entries }),
+        contentType: 'application/json',
+        success: function(response){
+          $("html").html(response);
+        }
+      });
+    });
+  });
+</script>
