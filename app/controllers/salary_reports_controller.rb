@@ -5,6 +5,11 @@ class SalaryReportsController < ApplicationController
     @reports = SalaryReport.all.includes(:salary_report_entries).order(:payed_at)
   end
 
+  def show
+    @report = SalaryReport.find(params[:id])
+    @entries = @report.salary_report_entries.includes(:issue)
+  end
+
   def new
     @issues = Issue.includes(:project, :assigned_to, :time_entries,
                              :salary_report_entries)
@@ -16,7 +21,7 @@ class SalaryReportsController < ApplicationController
     end
     if @times.count(0.0) == @times.size
       flash[:error] = 'There is nothing to report'
-      return redirect_to salary_reports_url 
+      return redirect_to salary_reports_url
     end
   end
 

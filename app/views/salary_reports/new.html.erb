@@ -10,9 +10,9 @@
   </thead>
   <tbody class="table-content">
     <% @issues.zip(@times).each do |issue, time| %>
-    <% if @time != 0.0 %>
+    <% if time.abs > 1e-2 %>
     <tr>
-      <td><%= issue.assigned_to.name %></td>
+      <td><%= issue.assigned_to %></td>
       <td><%= issue.id %></td>
       <td><%= issue.project.name %></td>
       <td><%= time %></td>

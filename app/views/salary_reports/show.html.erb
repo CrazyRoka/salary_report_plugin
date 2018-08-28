@@ -1,0 +1,26 @@
+<table>
+  <thead class="report-header">
+    <tr>
+      <td>Assigned to</td>
+      <td>Issue id</td>
+      <td>Time amount</td>
+      <td>Coefficient</td>
+      <td>Total</td>
+    </tr>
+  </thead>
+  <tbody class="table-content">
+    <% @entries.each do |entry| %>
+    <tr>
+      <td><%= entry.issue.assigned_to %></td>
+      <td><%= entry.issue.id %></td>
+      <td><%= entry.time_amount %></td>
+      <td><%= entry.coefficient %></td>
+      <td>$<%= entry.coefficient * entry.time_amount %></td>
+    </tr>
+    <% end %>
+    <tr>
+      <td colspan="4"></td>
+      <td>$<%= @report.money_amount %></td>
+    </tr>
+  </tbody>
+</table>

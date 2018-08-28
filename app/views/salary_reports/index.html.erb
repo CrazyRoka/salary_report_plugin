@@ -3,6 +3,7 @@
     <div class="report <%= report.payed_at ? "payed" : "unpayed" %>">
       <div class="salary">$<%= report.money_amount %></div>
       <div class="payed-at"><%= report.payed_at || "unpayed" %></div>
+      <%= link_to 'Show details', salary_report_path(report), class: "show-report" %>
     </div>
   <% end %>
 </div>
