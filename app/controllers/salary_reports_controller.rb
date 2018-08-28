@@ -1,4 +1,5 @@
 class SalaryReportsController < ApplicationController
+  skip_before_action :verify_authenticity_token
 
   def index
     @reports = SalaryReport.all.includes(:salary_report_entries).order(:payed_at)
@@ -38,6 +39,7 @@ class SalaryReportsController < ApplicationController
   end
 
   def entry_params(entry, salary_report)
+    p entry
     entry.merge({ salary_report_id: salary_report.id }).permit(:issue_id, :time_amount, :salary_report_id, :coefficient)
   end
 end

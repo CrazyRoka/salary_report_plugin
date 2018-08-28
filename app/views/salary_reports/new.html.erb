@@ -28,7 +28,6 @@
     $('button.create-report').click(function () {
       const tbody = document.getElementsByClassName("table-content")[0];
       const issues = Array.prototype.slice.call( tbody.children );
-      console.log(issues);
       const entries = issues.map(issue => {
         return {
           issue_id: issue.cells[1].textContent,
@@ -36,16 +35,30 @@
           coefficient: issue.cells[4].textContent,
         };
       });
-      console.log(entries);
-      $.ajax({
-        type: "POST",
-        url: "<%= salary_reports_path %>",
-        data: JSON.stringify({ entries: entries }),
-        contentType: 'application/json',
-        success: function(response){
-          $("html").html(response);
+      function redirectPost(url, data) {
+        var form = document.createElement('form');
+        document.body.appendChild(form);
+        form.method = 'post';
+        form.action = url;
+        for (var name in data['entries']) {
+          const object = data['entries'][name];
+          if(object.time_amount == 0)continue;
+            for(value in object){
+              var input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'entries[][' + value + ']';
+              input.value = object[value];
+              form.appendChild(input);
+            }
         }
-      });
+        if(form.children.length != 0){
+          form.submit();
+        }else{
+          console.log("FAILURE");
+          // TODO
+        }
+      }
+      redirectPost("<%= salary_reports_url %>", { entries: entries });
     });
   });
 </script>
