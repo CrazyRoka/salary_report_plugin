@@ -6,40 +6,28 @@ class SalaryReportsController < ApplicationController
   end
 
   def new
-    @issues = Issue.includes(:project, :assigned_to, :time_entries, :salary_report_entries).order(:assigned_to_id, :project_id)
+    @issues = Issue.includes(:project, :assigned_to, :time_entries,
+                             :salary_report_entries)
+                   .order(:assigned_to_id, :project_id)
+    @times = @issues.map do |issue|
+      elapsed_time = issue.time_entries.to_a.sum(&:hours)
+      reported_time = issue.salary_report_entries.to_a.sum(&:time_amount)
+      elapsed_time - reported_time
+    end
+    if @times.count(0.0) == @times.size
+      flash[:error] = 'There is nothing to report'
+      return redirect_to salary_reports_url 
+    end
   end
 
   def create
-    if create_report
-      flash[:success] = "Successfully created"
+    transaction = CreateReport.new.call(params)
+    if transaction.success?
+      flash[:success] = transaction.result
+      redirect_to salary_reports_url
     else
-      flash[:error] = "Error creating report"
+      flash[:error] = transaction.failure
+      redirect_to salary_reports_new_url
     end
-    @reports = SalaryReport.all.includes(:salary_report_entries).order(:payed_at)
-    render 'index'
-  end
-
-  private
-
-  def create_report
-    SalaryReport.transaction do
-      report = SalaryReport.create!
-      total_salary = 0
-      salary_report_params.each do |entry|
-        cur = SalaryReportEntry.create!(entry_params(entry, report))
-        total_salary += cur.time_amount * cur.coefficient
-      end
-      report.money_amount = total_salary
-      report.save!
-    end
-  end
-
-  def salary_report_params
-    params.require(:entries)
-  end
-
-  def entry_params(entry, salary_report)
-    p entry
-    entry.merge({ salary_report_id: salary_report.id }).permit(:issue_id, :time_amount, :salary_report_id, :coefficient)
   end
 end

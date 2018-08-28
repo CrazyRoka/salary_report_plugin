@@ -1,4 +1,5 @@
 require_relative 'app/models/issue_patch'
+require_relative 'app/transactions/create_report'
 
 Redmine::Plugin.register :salary_report do
   name 'Person Coefficient plugin'

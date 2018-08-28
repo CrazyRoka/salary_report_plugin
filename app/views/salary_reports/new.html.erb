@@ -9,14 +9,16 @@
     </tr>
   </thead>
   <tbody class="table-content">
-    <% @issues.each do |issue| %>
+    <% @issues.zip(@times).each do |issue, time| %>
+    <% if @time != 0.0 %>
     <tr>
       <td><%= issue.assigned_to.name %></td>
       <td><%= issue.id %></td>
       <td><%= issue.project.name %></td>
-      <td><%= issue.time_entries.to_a.sum(&:hours) - issue.salary_report_entries.to_a.sum(&:time_amount) %></td>
+      <td><%= time %></td>
       <td><%= 1 %></td>
     </tr>
+    <% end %>
     <% end %>
   </tbody>
 </table>
@@ -35,30 +37,26 @@
           coefficient: issue.cells[4].textContent,
         };
       });
-      function redirectPost(url, data) {
-        var form = document.createElement('form');
-        document.body.appendChild(form);
-        form.method = 'post';
-        form.action = url;
-        for (var name in data['entries']) {
-          const object = data['entries'][name];
-          if(object.time_amount == 0)continue;
-            for(value in object){
-              var input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = 'entries[][' + value + ']';
-              input.value = object[value];
-              form.appendChild(input);
-            }
-        }
-        if(form.children.length != 0){
-          form.submit();
-        }else{
-          console.log("FAILURE");
-          // TODO
-        }
-      }
+
       redirectPost("<%= salary_reports_url %>", { entries: entries });
     });
   });
+  function redirectPost(url, data) {
+    var form = document.createElement('form');
+    document.body.appendChild(form);
+    form.method = 'post';
+    form.action = url;
+    for (var name in data['entries']) {
+      const object = data['entries'][name];
+      if(object.time_amount == 0)continue;
+        for(value in object){
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'entries[][' + value + ']';
+          input.value = object[value];
+          form.appendChild(input);
+        }
+    }
+    form.submit();
+  }
 </script>
