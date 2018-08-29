@@ -3,7 +3,7 @@
     <tr>
       <th>Assigned to</th>
       <th>Issue id</th>
-      <th>Time amount</th>
+      <th>Hours</th>
       <th>Coefficient</th>
       <th>Total</th>
     </tr>
@@ -13,9 +13,9 @@
     <tr class="<%= index % 2 == 0 ? 'even' : 'odd' %> issue">
       <td><%= entry.issue.assigned_to %></td>
       <td><%= entry.issue.id %></td>
-      <td><%= entry.time_amount %></td>
+      <td><%= entry.hours %></td>
       <td><%= entry.coefficient %></td>
-      <td>$<%= entry.coefficient * entry.time_amount %></td>
+      <td>$<%= entry.coefficient * entry.hours %></td>
     </tr>
     <% end %>
     <tr>
@@ -29,8 +29,13 @@
 <div class="status">Payed</div>
 <% else %>
 <div class="buttons">
-  <button type="submit" id="delete-report">Delete report</button>
-  <button type="submit" id="submit-report">Proceed payment</button>
+  <%= link_to 'Delete report', salary_report_path(@report),
+                               method: :delete,
+                               class: 'delete-report',
+                               data: {confirm: "You sure?"} %>
+  <%= link_to 'Proceed payment', salary_report_path(@report),
+                                 method: :post,
+                                 class: 'procceed-payment' %>
 </div>
 <% end %>
 

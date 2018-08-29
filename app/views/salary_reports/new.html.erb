@@ -5,7 +5,7 @@
       <th>Assigned to</th>
       <th>Issue id</th>
       <th>Project name</th>
-      <th>Time</th>
+      <th>Hours</th>
       <th>Coefficient</th>
     </tr>
   </thead>
@@ -18,12 +18,17 @@
       <td><%= issue.assigned_to %></td>
       <td><%= issue.id %></td>
       <td><%= issue.project.name %></td>
-      <td><%= time %></td>
-      <td><%= 1 %></td>
+      <td contenteditable='true' class="editable-cell"><%= time %></td>
+      <td contenteditable='true' class="editable-cell"><%= 1 %></td>
     </tr>
     <% index += 1 %>
     <% end %>
     <% end %>
+    <tr class="<%= index % 2 == 0 ? 'even' : 'odd' %>">
+      <td colspan="4"></td>
+      <td><b>Total money:<b></td>
+      <td id="money-sum">$0.0</td>
+    </tr>
   </tbody>
 </table>
 
@@ -32,34 +37,40 @@
 <script>
   $( document ).ready(function() {
     $('button.create-report').click(function () {
-      const tbody = document.getElementsByClassName("table-content")[0];
-      const issues = Array.prototype.slice.call( tbody.children )
-                          .filter(line => line.cells[0].firstChild.checked);
-      const entries = issues.map(issue => {
-        return {
-          issue_id: issue.cells[2].textContent,
-          time_amount: issue.cells[4].textContent,
-          coefficient: issue.cells[5].textContent,
-        };
-      });
+      const entries = getIssues();
       redirectPost("<%= salary_reports_url %>", { entries: entries });
     });
     $("#checkAll").click(function(){
         $('.check-issue').not(this).prop('checked', this.checked)
-                         .parents('.issue').toggleClass('context-menu-selection', this.checked);
+                         .parents('.issue')
+                         .toggleClass('context-menu-selection', this.checked);
+        recalculateSum();
     });
     $('.check-issue').click(function(){
       $(this).parents('.issue').toggleClass('context-menu-selection');
     });
   });
+  function getIssues() {
+    const issues = document.getElementsByClassName("issue");
+    const entries = Array.prototype.slice.call( issues )
+                        .filter(line => line.cells[0].firstChild.checked)
+                        .map(issue => {
+      return {
+        issue_id: issue.cells[2].textContent,
+        hours: issue.cells[4].textContent,
+        coefficient: issue.cells[5].textContent,
+      };
+    });
+    return entries;
+  }
   function redirectPost(url, data) {
     var form = document.createElement('form');
     document.body.appendChild(form);
     form.method = 'post';
     form.action = url;
-    for (var name in data['entries']) {
+    for (let name in data['entries']) {
       const object = data['entries'][name];
-      if(object.time_amount == 0)continue;
+      if(object.hours == 0)continue;
         for(value in object){
           var input = document.createElement('input');
           input.type = 'hidden';
@@ -70,6 +81,27 @@
     }
     form.submit();
   }
+  function recalculateSum() {
+    let sum = 0.0;
+    const issues = getIssues();
+    for(let issue of issues){
+      if(!isNaN(issue.hours) && !isNaN(issue.coefficient)){
+        sum += parseFloat(issue.hours) * parseFloat(issue.coefficient);
+      }
+    }
+    var result = Math.round(sum * 100) / 100;
+    document.getElementById('money-sum').textContent = "$" + result;
+  }
+  const cells = document.getElementsByClassName("editable-cell");
+  for(let cell of cells){
+    cell.addEventListener("input", recalculateSum);
+  }
 </script>
+
+<style>
+.create-report {
+  float: right;
+}
+</style>
 
 <%= context_menu %>
