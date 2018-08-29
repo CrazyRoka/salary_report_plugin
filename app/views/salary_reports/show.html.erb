@@ -1,16 +1,16 @@
-<table>
-  <thead class="report-header">
+<table class="list issues odd-even">
+  <thead>
     <tr>
-      <td>Assigned to</td>
-      <td>Issue id</td>
-      <td>Time amount</td>
-      <td>Coefficient</td>
-      <td>Total</td>
+      <th>Assigned to</th>
+      <th>Issue id</th>
+      <th>Time amount</th>
+      <th>Coefficient</th>
+      <th>Total</th>
     </tr>
   </thead>
   <tbody class="table-content">
-    <% @entries.each do |entry| %>
-    <tr>
+    <% @entries.each.with_index do |entry, index| %>
+    <tr class="<%= index % 2 == 0 ? 'even' : 'odd' %> issue">
       <td><%= entry.issue.assigned_to %></td>
       <td><%= entry.issue.id %></td>
       <td><%= entry.time_amount %></td>
@@ -24,3 +24,23 @@
     </tr>
   </tbody>
 </table>
+
+<% if @report.payed_at %>
+<div class="status">Payed</div>
+<% else %>
+<div class="buttons">
+  <button type="submit" id="delete-report">Delete report</button>
+  <button type="submit" id="submit-report">Proceed payment</button>
+</div>
+<% end %>
+
+<style>
+.status{
+  color: white;
+  background-color: green;
+  padding: 1em 1.5em;
+  border-radius: 0.5em;
+  font-size: 1.5rem;
+  float: right;
+}
+</style>

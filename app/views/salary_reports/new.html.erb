@@ -1,23 +1,27 @@
-<table>
-  <thead class="report-header">
+<table class="list issues odd-even">
+  <thead>
     <tr>
-      <td>Assigned to</td>
-      <td>Issue id</td>
-      <td>Project name</td>
-      <td>Time</td>
-      <td>Coefficient</td>
+      <th class="checkbox"><input type="checkbox" class="check-issue" id="checkAll"/></th>
+      <th>Assigned to</th>
+      <th>Issue id</th>
+      <th>Project name</th>
+      <th>Time</th>
+      <th>Coefficient</th>
     </tr>
   </thead>
   <tbody class="table-content">
+    <% index = 0 %>
     <% @issues.zip(@times).each do |issue, time| %>
     <% if time.abs > 1e-2 %>
-    <tr>
+    <tr class="<%= index % 2 == 0 ? 'even' : 'odd' %> issue">
+      <td class="checkbox"><input type="checkbox" class="check-issue"/></td>
       <td><%= issue.assigned_to %></td>
       <td><%= issue.id %></td>
       <td><%= issue.project.name %></td>
       <td><%= time %></td>
       <td><%= 1 %></td>
     </tr>
+    <% index += 1 %>
     <% end %>
     <% end %>
   </tbody>
@@ -29,16 +33,23 @@
   $( document ).ready(function() {
     $('button.create-report').click(function () {
       const tbody = document.getElementsByClassName("table-content")[0];
-      const issues = Array.prototype.slice.call( tbody.children );
+      const issues = Array.prototype.slice.call( tbody.children )
+                          .filter(line => line.cells[0].firstChild.checked);
       const entries = issues.map(issue => {
         return {
-          issue_id: issue.cells[1].textContent,
-          time_amount: issue.cells[3].textContent,
-          coefficient: issue.cells[4].textContent,
+          issue_id: issue.cells[2].textContent,
+          time_amount: issue.cells[4].textContent,
+          coefficient: issue.cells[5].textContent,
         };
       });
-
       redirectPost("<%= salary_reports_url %>", { entries: entries });
+    });
+    $("#checkAll").click(function(){
+        $('.check-issue').not(this).prop('checked', this.checked)
+                         .parents('.issue').toggleClass('context-menu-selection', this.checked);
+    });
+    $('.check-issue').click(function(){
+      $(this).parents('.issue').toggleClass('context-menu-selection');
     });
   });
   function redirectPost(url, data) {
@@ -60,3 +71,5 @@
     form.submit();
   }
 </script>
+
+<%= context_menu %>

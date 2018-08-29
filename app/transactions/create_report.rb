@@ -8,7 +8,7 @@ class CreateReport
 
   def validate(params)
     return Failure.new('Invalid params') unless params[:entries]
-    new(params.require(:entries))
+    create(params.require(:entries))
   end
 
   def create(entries)
@@ -29,7 +29,7 @@ class CreateReport
   private
 
   def entry_params(entry, report)
-    entry.merge({ salary_report_id: salary_report.id })
+    entry.merge({ salary_report_id: report.id })
          .permit(:issue_id, :time_amount, :salary_report_id, :coefficient)
   end
 end

@@ -2,12 +2,22 @@ class SalaryReportsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def index
-    @reports = SalaryReport.all.includes(:salary_report_entries).order(:payed_at)
+    @reports = SalaryReport.all.includes(:salary_report_entries)
+                               .order(:payed_at, created_at: :desc)
   end
 
   def show
     @report = SalaryReport.find(params[:id])
     @entries = @report.salary_report_entries.includes(:issue)
+  end
+
+  def update
+    @report = SalaryReport.find(params[:id])
+    if @report.update(salary_report_params)
+      redirect_to salary_reports_url, flash: { success: 'Updated payment' }
+    else
+      redirect_to salary_report(@report), flash: { error: 'Wrong date' }
+    end
   end
 
   def new
@@ -20,19 +30,22 @@ class SalaryReportsController < ApplicationController
       elapsed_time - reported_time
     end
     if @times.count(0.0) == @times.size
-      flash[:error] = 'There is nothing to report'
-      return redirect_to salary_reports_url
+      return redirect_to salary_reports_url, flash: { error: 'There is nothing to report' }
     end
   end
 
   def create
     transaction = CreateReport.new.call(params)
     if transaction.success?
-      flash[:success] = transaction.result
-      redirect_to salary_reports_url
+      redirect_to salary_reports_url, flash: { success: transaction.result }
     else
-      flash[:error] = transaction.failure
-      redirect_to salary_reports_new_url
+      redirect_to salary_reports_new_url, flash: { error: transaction.failure }
     end
+  end
+
+  private
+
+  def salary_report_params
+    params.require(:salary_report).permit(:payed_at)
   end
 end

@@ -5,6 +5,8 @@ class CreateSalaryReportEntries < ActiveRecord::Migration
       t.belongs_to :issue,         null: false
       t.decimal :time_amount,       default: 0
       t.decimal :coefficient,       default: 1
+
+      t.timestamps
     end
   end
 end
